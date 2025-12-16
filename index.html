@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Drama China Hub</title>
+<style>
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; }
+header { background:#333; color:#fff; padding:1rem; text-align:center; }
+#searchBar { width: 80%; padding:0.5rem; margin:1rem auto; display:block; border-radius:5px; border:1px solid #ccc; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:1rem; padding:1rem; }
+.card { background:#fff; border-radius:5px; overflow:hidden; cursor:pointer; transition:0.2s; }
+.card:hover { transform:scale(1.03); }
+.card img { width:100%; display:block; }
+.card h3 { text-align:center; margin:0.5rem 0; font-size:1rem; }
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; }
+.modal-content { background:#fff; padding:1rem; border-radius:5px; max-width:500px; width:90%; text-align:center; position:relative; }
+.close { position:absolute; top:0.5rem; right:1rem; cursor:pointer; font-size:1.2rem; font-weight:bold; }
+.modal img { width:80%; margin-bottom:1rem; }
+.modal button { padding:0.5rem 1rem; background:#333; color:#fff; border:none; border-radius:5px; cursor:pointer; }
+.modal button:hover { background:#555; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Drama China Hub</h1>
+</header>
+
+<input type="text" id="searchBar" placeholder="Search drama...">
+
+<div class="grid" id="dramaGrid"></div>
+
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <span class="close" id="closeModal">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <img id="modalPoster" src="" alt="">
+    <p id="modalDesc"></p>
+    <button id="watchBtn">Watch</button>
+  </div>
+</div>
+
+<script>
+const dramas = [
+  {title:"Soul Land", poster:"https://i.ibb.co/4F8Y2Lj/soul-land.jpg", description:"Petualangan Tang San di dunia roh.", link:"https://example.com/soul-land"},
+  {title:"Battle Through the Heavens", poster:"https://i.ibb.co/6t2Mz8r/battle-through-the-heavens.jpg", description:"Xiao Yan berjuang untuk menjadi kuat.", link:"https://example.com/battle-through-the-heavens"},
+  {title:"Speed Love", poster:"https://i.ibb.co/1rJ0F3K/speed-love.jpg", description:"Drama romantis penuh aksi.", link:"https://example.com/speed-love"},
+  {title:"The King's Avatar", poster:"https://i.ibb.co/4K9vL0X/kings-avatar.jpg", description:"E-sport dan perjuangan Ye Xiu.", link:"https://example.com/kings-avatar"},
+  {title:"The Untamed", poster:"https://i.ibb.co/0V1F2pL/the-untamed.jpg", description:"Persahabatan dan petualangan Wei Wuxian.", link:"https://example.com/the-untamed"},
+  {title:"Love O2O", poster:"https://i.ibb.co/x8N9L5y/love-o2o.jpg", description:"Romansa dunia game online.", link:"https://example.com/love-o2o"},
+  {title:"Heaven Official's Blessing", poster:"https://i.ibb.co/XXdVJY6/heaven-officials-blessing.jpg", description:"Xie Lian dan petualangan dewa.", link:"https://example.com/heaven-officials-blessing"},
+  {title:"Word of Honor", poster:"https://i.ibb.co/9hg7vCk/word-of-honor.jpg", description:"Cerita persahabatan dan balas dendam.", link:"https://example.com/word-of-honor"},
+  {title:"Nirvana in Fire", poster:"https://i.ibb.co/vhMbbzL/nirvana-in-fire.jpg", description:"Intrik politik dan strategi.", link:"https://example.com/nirvana-in-fire"},
+  {title:"Love Between Fairy and Devil", poster:"https://i.ibb.co/Wn7s4sX/love-fairy-devil.jpg", description:"Romansa antara manusia dan makhluk supernatural.", link:"https://example.com/love-fairy-devil"},
+  {title:"Joy of Life", poster:"https://i.ibb.co/8MT5H5R/joy-of-life.jpg", description:"Perjuangan dan intrik Fan Xian.", link:"https://example.com/joy-of-life"},
+  {title:"My Heroic Husband", poster:"https://i.ibb.co/Zh3P9x7/my-heroic-husband.jpg", description:"Drama komedi dan cinta keluarga.", link:"https://example.com/my-heroic-husband"},
+  {title:"Legend of Fuyao", poster:"https://i.ibb.co/6nF0YvH/legend-of-fuyao.jpg", description:"Fuyao berjuang untuk membalas dendam.", link:"https://example.com/legend-of-fuyao"},
+  {title:"Ashes of Love", poster:"https://i.ibb.co/Qr6y5Z1/ashes-of-love.jpg", description:"Romansa dan pertarungan dewa.", link:"https://example.com/ashes-of-love"},
+  {title:"Eternal Love", poster:"https://i.ibb.co/jWqT4dG/eternal-love.jpg", description:"Cinta abadi di dunia roh.", link:"https://example.com/eternal-love"},
+  {title:"The Long Ballad", poster:"https://i.ibb.co/YL6yK9s/the-long-ballad.jpg", description:"Petualangan Li Changge.", link:"https://example.com/the-long-ballad"},
+  {title:"Go Go Squid!", poster:"https://i.ibb.co/8D3K9y2/go-go-squid.jpg", description:"Romansa & e-sport.", link:"https://example.com/go-go-squid"},
+  {title:"Fights Break Sphere", poster:"https://i.ibb.co/NrCjH7g/fights-break-sphere.jpg", description:"Petualangan Xiao Yan.", link:"https://example.com/fights-break-sphere"},
+  {title:"Till The End Of The Moon", poster:"https://i.ibb.co/3CSqX1N/till-end-moon.jpg", description:"Romansa & intrik dewa.", link:"https://example.com/till-end-moon"},
+  {title:"Double Life of White Fox", poster:"https://i.ibb.co/5Mx1QCh/white-fox.jpg", description:"Petualangan roh rubah putih.", link:"https://example.com/white-fox"},
+  {title:"My Dear Guardian", poster:"https://i.ibb.co/qjD4PfL/my-dear-guardian.jpg", description:"Drama romansa & perang.", link:"https://example.com/my-dear-guardian"},
+  {title:"Meteor Garden", poster:"https://i.ibb.co/k6c9L1F/meteor-garden.jpg", description:"Drama romantis klasik.", link:"https://example.com/meteor-garden"},
+  {title:"The Wolf", poster:"https://i.ibb.co/Z6ZfJvK/the-wolf.jpg", description:"Petualangan dan cinta.", link:"https://example.com/the-wolf"},
+  {title:"Ashes of Time", poster:"https://i.ibb.co/x2L7kD0/ashes-of-time.jpg", description:"Intrik & pertarungan legenda.", link:"https://example.com/ashes-of-time"},
+  {title:"Love Designer", poster:"https://i.ibb.co/8N4DqQ7/love-designer.jpg", description:"Romansa dunia fashion.", link:"https://example.com/love-designer"},
+  {title:"You Are My Glory", poster:"https://i.ibb.co/VgX2JrZ/you-are-my-glory.jpg", description:"Romansa & game online.", link:"https://example.com/you-are-my-glory"},
+  {title:"The Promise of Chang'an", poster:"https://i.ibb.co/3y3kP0S/promise-changan.jpg", description:"Intrik politik & cinta.", link:"https://example.com/promise-changan"},
+  {title:"Word of Honour 2", poster:"https://i.ibb.co/bF1P7gK/word-of-honor2.jpg", description:"Lanjutan petualangan persahabatan.", link:"https://example.com/word-of-honor2"},
+  {title:"The Oath of Love", poster:"https://i.ibb.co/df7X6K3/oath-of-love.jpg", description:"Drama romantis penuh emosi.", link:"https://example.com/oath-of-love"},
+  {title:"Reunion: The Sound of the Providence", poster:"https://i.ibb.co/m0gM0fD/reunion.jpg", description:"Petualangan & misteri.", link:"https://example.com/reunion"}
+];
+
+const grid = document.getElementById('dramaGrid');
+const modal = document.getElementById('modal');
+const modalTitle = document.getElementById('modalTitle');
+const modalPoster = document.getElementById('modalPoster');
+const modalDesc = document.getElementById('modalDesc');
+const watchBtn = document.getElementById('watchBtn');
+const closeModal = document.getElementById('closeModal');
+
+function renderDramas(filter="") {
+  grid.innerHTML = "";
+  dramas.filter(d => d.title.toLowerCase().includes(filter.toLowerCase()))
+        .forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<img src="${d.poster}" alt="${d.title}"><h3>${d.title}</h3>`;
+    card.onclick = () => {
+      modal.style.display = 'flex';
+      modalTitle.textContent = d.title;
+      modalPoster.src = d.poster;
+      modalDesc.textContent = d.description;
+      watchBtn.onclick = () => window.open(d.link, '_blank');
+    };
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById('searchBar').addEventListener('input', (e)=>renderDramas(e.target.value));
+closeModal.onclick = ()=>modal.style.display='none';
+window.onclick = (e)=>{ if(e.target===modal) modal.style.display='none'; }
+
+renderDramas();
+</script>
+
+</body>
+      </html>
