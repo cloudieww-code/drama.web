@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Drama China Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #0d0d0d;
+      color: #fff;
+    }
+
+    header {
+      padding: 16px;
+      font-size: 20px;
+      font-weight: bold;
+      background: #111;
+      border-bottom: 1px solid #222;
+    }
+
+    .search-box {
+      padding: 12px;
+      background: #111;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px;
+      background: #1a1a1a;
+      border: none;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+      padding: 16px;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .2s;
+    }
+
+    .card:hover {
+      transform: scale(1.04);
+    }
+
+    .card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+
+    .card .info {
+      padding: 10px;
+    }
+
+    .title {
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .year {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #777;
+      border-top: 1px solid #222;
+    }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #121212;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    .modal-content a {
+      display: block;
+      margin-top: 10px;
+      padding: 10px;
+      background: #e50914;
+      text-align: center;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .close {
+      text-align: right;
+      font-size: 14px;
+      color: #aaa;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>🎬 Drama China Hub</header>
+
+<div class="search-box">
+  <input type="text" id="search" placeholder="Cari drama...">
+</div>
+
+<div class="grid" id="dramaGrid"></div>
+
+<footer>
+  Website ini hanya sebagai katalog & pengarah ke platform resmi.
+</footer>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div class="close" onclick="closeModal()">Tutup ✕</div>
+    <h2 id="modalTitle"></h2>
+    <a id="watchLink" href="#" target="_blank">▶️ Nonton di Platform Resmi</a>
+  </div>
+</div>
+
+<script>
+const dramas = [
+  {
+    title: "Hidden Love",
+    year: "2023",
+    poster: "https://image.tmdb.org/t/p/w500/8WurJq6bYxZz0rGUNShUMHbOWcJ.jpg",
+    link: "https://www.youtube.com/results?search_query=Hidden+Love+2023+episode+1"
+  },
+  {
+    title: "Love Between Fairy and Devil",
+    year: "2022",
+    poster: "https://image.tmdb.org/t/p/w500/xsYp1i6zkRgZNpmjQe7YQDdyCjI.jpg",
+    link: "https://www.youtube.com/results?search_query=Love+Between+Fairy+and+Devil+episode+1"
+  },
+  {
+    title: "The Untamed",
+    year: "2019",
+    poster: "https://image.tmdb.org/t/p/w500/6zF4gZbYwz8K5zZ7n9Fj3x3aZ0N.jpg",
+    link: "https://www.youtube.com/results?search_query=The+Untamed+episode+1"
+  },
+  {
+    title: "Go Go Squid!",
+    year: "2019",
+    poster: "https://image.tmdb.org/t/p/w500/9XcJ6N9zeps2sonMSKcwk5Y8Znd.jpg",
+    link: "https://www.youtube.com/results?search_query=Go+Go+Squid+episode+1"
+  }
+];
+
+const grid = document.getElementById("dramaGrid");
+const searchInput = document.getElementById("search");
+
+function render(list) {
+  grid.innerHTML = "";
+  list.forEach(d => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${d.poster}">
+      <div class="info">
+        <div class="title">${d.title}</div>
+        <div class="year">${d.year}</div>
+      </div>
+    `;
+    card.onclick = () => openModal(d);
+    grid.appendChild(card);
+  });
+}
+
+function openModal(drama) {
+  document.getElementById("modalTitle").innerText = drama.title;
+  document.getElementById("watchLink").href = drama.link;
+  document.getElementById("modal").style.display = "flex";
+}
+
+function closeModal() {
+  document.getElementById("modal").style.display = "none";
+}
+
+searchInput.addEventListener("input", e => {
+  const q = e.target.value.toLowerCase();
+  render(dramas.filter(d => d.title.toLowerCase().includes(q)));
+});
+
+render(dramas);
+</script>
+
+</body>
+  </html>
